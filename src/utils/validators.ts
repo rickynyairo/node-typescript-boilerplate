@@ -1,20 +1,56 @@
 import {
-    validate,
-    IsInt,
-    Min,
-    Max,
-    IsDefined
+  validate,
+  IsString,
+  IsDefined,
+  MinLength,
+  IsAlphanumeric,
+  ValidateNested
 } from "class-validator";
-
-export class GenerateNumbersValidator {
+interface Address {
+  city: string;
+  street: string;
+}
+export class PostValidator {
   @IsDefined({ message: "$property is required in the request" })
-    @IsInt({ message: "$property should be an integer" })
-    @Min(1)
-    @Max(10000, {
-      message: "Maximum of 10000 numbers can be generated at a time"
-    })
-    number!: number;
+  @IsString({ message: "$property should be a string" })
+  author!: string;
 
+  @IsDefined({ message: "$property is required in the request" })
+  @IsString({ message: "$property should be a string" })
+  content!: string;
+
+  @IsDefined({ message: "$property is required in the request" })
+  @IsString({ message: "$property should be a string" })
+  title!: string;
+}
+
+export class ModifyPostValidator {
+  @IsString({ message: "$property should be a string" })
+  author!: string;
+
+  @IsString({ message: "$property should be a string" })
+  content!: string;
+
+  @IsString({ message: "$property should be a string" })
+  title!: string;
+}
+
+export class LoginValidator {
+
+  @IsDefined({ message: "$property is required in the request" })
+  @IsString({ message: "$property should be a string" })
+  @MinLength(4, { message: "$property should have atleast 4 characters" })
+  userName!: string;
+
+  @IsDefined({ message: "$property is required in the request" })
+  @IsAlphanumeric({ message: "$property should only have numbers and letters" })
+  @MinLength(4, { message: "$property should have atleast 4 characters" })
+  password!: string;
+}
+export class UserValidator extends LoginValidator {
+
+  @IsDefined({ message: "$property is required in the request" })
+  address!: Address;
 }
 
 const humanize = (message: string) => {
@@ -24,10 +60,12 @@ const humanize = (message: string) => {
 
 const formatError = (error: any) => {
   const { property, constraints } = error;
-  const messages: string[] = Object.values(constraints);
+  const messages: string[] = Object.values(
+    constraints || { error: "check your request payload" }
+  );
 
   return {
-    [property]: messages.map(message => humanize(message)),
+    [property]: messages.map(message => humanize(message))
   };
 };
 const message =
@@ -41,6 +79,7 @@ const message =
 export const validateRequest = async (
   validator: any,
   payload: any,
+  skipMissingProperties = false
 ): Promise<boolean | any> => {
   const resource = new validator();
   let validationErrors = {};
@@ -49,6 +88,7 @@ export const validateRequest = async (
     resource[key] = value;
   });
   const errors = await validate(resource, {
+    skipMissingProperties,
     validationError: { target: true },
     forbidUnknownValues: true
   });
@@ -63,12 +103,12 @@ export const validateRequest = async (
   for (const error of errors) {
     validationErrors = {
       ...validationErrors,
-      ...formatError(error),
+      ...formatError(error)
     };
   }
 
   return {
     message,
-    errors: validationErrors,
+    errors: validationErrors
   };
 };

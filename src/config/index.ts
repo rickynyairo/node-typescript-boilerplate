@@ -5,11 +5,15 @@ dotenv.config();
 const {
   env: {
     PORT,
-    NODE_ENV
+    NODE_ENV,
+    MONGO_DB_URL,
+    SESSION_SECRET
   },
 } = process;
 
 export default Object.freeze({
   PORT,
-  NODE_ENV
+  NODE_ENV,
+  MONGO_DB_URL,
+  SESSION_SECRET
 });
