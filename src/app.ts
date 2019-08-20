@@ -3,9 +3,15 @@ import express from "express";
 import { applyMiddleware, applyRoutes } from "./utils";
 import authRoutes from "./auth/routes";
 import postRoutes from "./post/routes";
-import middleware from "./middleware";
+import commonMiddleware from "./middleware";
 import errorHandlers from "./middleware/errorHandlers";
+import { validateEnv } from "./utils/validateEnv";
+import { connectToDatabase } from "./services/database";
 import config from "./config";
+import {
+  passportLoginStrategy,
+  passportJwtStrategy
+} from "./auth";
 
 process.on("uncaughtException", (e) => {
   console.log(e);
@@ -19,10 +25,16 @@ process.on("unhandledRejection", (e) => {
 
 const app = express();
 
-applyMiddleware(middleware, app);
+validateEnv();
+
+applyMiddleware(commonMiddleware, app);
 applyRoutes(authRoutes, app);
 applyRoutes(postRoutes, app);
 applyMiddleware(errorHandlers, app);
+
+connectToDatabase();
+passportLoginStrategy();
+passportJwtStrategy();
 
 const PORT = config.PORT;
 const server = http.createServer(app);

@@ -16,7 +16,7 @@ services:
     links:
       - mongo
     ports:
-      - 3002:3002
+      - 3001:3001
       - 9229:9229
     volumes:
       - ${PWD:-.}:/usr/src/app

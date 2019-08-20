@@ -15,5 +15,5 @@ export default Object.freeze({
   PORT,
   NODE_ENV,
   MONGO_DB_URL,
-  SESSION_SECRET
+  SESSION_SECRET: `${SESSION_SECRET}`
 });
