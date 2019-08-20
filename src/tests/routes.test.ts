@@ -4,7 +4,8 @@ import { applyMiddleware, applyRoutes } from "../utils";
 import requestPromise from "request-promise";
 import middleware from "../middleware";
 import errorHandlers from "../middleware/errorHandlers";
-import routes from "../services/routes";
+import authRoutes from "../auth/routes";
+import postRoutes from "../post/routes";
 
 jest.mock("request-promise");
 (requestPromise as any).mockImplementation(() => '{"features": []}');
@@ -15,7 +16,8 @@ describe("routes", () => {
   beforeEach(() => {
     app = express();
     applyMiddleware(middleware, app);
-    applyRoutes(routes, app);
+    applyRoutes(authRoutes, app);
+    applyRoutes(postRoutes, app);
     applyMiddleware(errorHandlers, app);
   });
 
@@ -30,7 +32,7 @@ describe("routes", () => {
   });
 
   test("an existing api route", async () => {
-    const response = await supertest(app).post("/api/path");
+    const response = await supertest(app).get("/api-docs");
     expect(response.status).toEqual(200);
   });
 
